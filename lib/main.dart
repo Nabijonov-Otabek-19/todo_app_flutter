@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:todo_app/presentation/screen/home/home_screen.dart';
-
-import 'presentation/screen/home/home_provider.dart';
+import 'package:todo_app/data/model2/todo_model2.dart';
+import 'package:todo_app/presentation/screen/home2/home_provider2.dart';
+import 'package:todo_app/presentation/screen/home2/home_screen.dart';
+import 'package:todo_app/utils/constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Hive.initFlutter();
-  await Hive.openBox('todo');
+  Hive.registerAdapter(TodoModel2Adapter());
+  await Hive.openBox<TodoModel2>(dbName);
 
   runApp(const MyApp());
 }
@@ -31,8 +33,8 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: ChangeNotifierProvider(
-        create: (context) => HomeProvider(Hive.box("todo")),
-        builder: (context, child) => const HomeScreen(),
+        create: (context) => HomeProvider2(Hive.box<TodoModel2>(dbName)),
+        builder: (context, child) => const HomeScreen2(),
       ),
     );
   }
