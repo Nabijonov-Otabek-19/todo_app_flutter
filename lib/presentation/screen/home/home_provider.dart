@@ -1,49 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+import '../../../data/model/todo_model.dart';
+
 class HomeProvider extends ChangeNotifier {
-  final Box _box;
+  final Box<TodoModel> _box;
+  final BuildContext context;
 
-  HomeProvider(this._box);
+  HomeProvider(this._box, this.context);
 
-  List<Map<String, dynamic>> _items = [];
-
-  // getter
-  List<Map<String, dynamic>> get items => _items;
-
-  void refreshItems() {
-    final data = _box.keys.map((key) {
-      final value = _box.get(key);
-      return {"key": key, "name": value["name"], "quantity": value['quantity']};
-    }).toList();
-
-    // we use "reversed" to sort items in order from the latest to the oldest
-    _items = data.reversed.toList();
-
+  Future<void> createItem(TodoModel newItem) async {
+    await _box.add(newItem);
     notifyListeners();
   }
 
-  Future<void> createItem(Map<String, dynamic> newItem) async {
-    await _box.add(newItem);
-    refreshItems(); // update the UI
-  }
-
-  Map<String, dynamic> _readItem(int key) {
+  TodoModel? _readItem(int key) {
     final item = _box.get(key);
     return item;
   }
 
-  Future<void> updateItem(int itemKey, Map<String, dynamic> item) async {
+  Future<void> updateItem(int itemKey, TodoModel item) async {
     await _box.put(itemKey, item);
-    refreshItems(); // Update the UI
+    notifyListeners();
   }
 
   Future<void> deleteItem(int itemKey, BuildContext context) async {
     await _box.delete(itemKey);
-    refreshItems(); // update the UI
+    notifyListeners();
 
     // Display a snackbar
     //if (!mounted) return;
+    showSnackBar();
+  }
+
+  void showSnackBar(){
+    //if(!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('An item has been deleted')));
   }
@@ -57,10 +48,9 @@ class HomeProvider extends ChangeNotifier {
     final TextEditingController quantityController = TextEditingController();
 
     if (itemKey != null) {
-      final existingItem =
-          _items.firstWhere((element) => element['key'] == itemKey);
-      nameController.text = existingItem['name'];
-      quantityController.text = existingItem['quantity'];
+      final existingItem = _readItem(itemKey)!;
+      nameController.text = existingItem.title;
+      quantityController.text = existingItem.description;
     }
 
     showModalBottomSheet(
@@ -95,25 +85,25 @@ class HomeProvider extends ChangeNotifier {
                       if (itemKey == null &&
                           nameController.text.isNotEmpty &&
                           quantityController.text.isNotEmpty) {
-                        createItem({
-                          "name": nameController.text.trim(),
-                          "quantity": quantityController.text.trim()
-                        });
+                        createItem(TodoModel(
+                            title: nameController.text.trim(),
+                            description: quantityController.text.trim()));
                       }
 
                       // update an existing item
                       if (itemKey != null &&
                           nameController.text.isNotEmpty &&
                           quantityController.text.isNotEmpty) {
-                        updateItem(itemKey, {
-                          'name': nameController.text.trim(),
-                          'quantity': quantityController.text.trim()
-                        });
+                        updateItem(
+                            itemKey,
+                            TodoModel(
+                                title: nameController.text.trim(),
+                                description: quantityController.text.trim()));
                       }
 
                       // Clear the text fields
-                      nameController.text = '';
-                      quantityController.text = '';
+                      nameController.clear();
+                      quantityController.clear();
 
                       Navigator.of(ctx).pop(); // Close the bottom sheet
                     },
