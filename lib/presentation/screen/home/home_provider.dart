@@ -39,15 +39,13 @@ class HomeProvider extends ChangeNotifier {
         const SnackBar(content: Text('An item has been deleted')));
   }
 
-  void showFormDialog(BuildContext ctx, int? itemKey, bool mounted) async {
+  void showFormDialog(BuildContext ctx, int? itemKey) async {
     // itemKey == null -> create new item
     // itemKey != null -> update an existing item
 
     // TextFields' controllers
     final TextEditingController nameController = TextEditingController();
     final TextEditingController quantityController = TextEditingController();
-
-    if(!mounted) return;
 
     if (itemKey != null) {
       final existingItem = _readItem(itemKey)!;

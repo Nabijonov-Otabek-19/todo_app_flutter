@@ -76,8 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   onPressed: () => {
                                         context
                                             .read<HomeProvider>()
-                                            .showFormDialog(
-                                                context, key, mounted)
+                                            .showFormDialog(context, key)
                                       }),
                               // Delete button
                               IconButton(
@@ -97,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () =>
-            context.read<HomeProvider>().showFormDialog(context, null, mounted),
+            context.read<HomeProvider>().showFormDialog(context, null),
         child: const Icon(Icons.add),
       ),
     );
