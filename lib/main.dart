@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:todo_app/data/db/box.dart';
 import 'package:todo_app/data/model/todo_model.dart';
 import 'package:todo_app/utils/constants.dart';
 
@@ -29,12 +30,13 @@ class MyApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           color: Colors.blue,
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 22.0),
+          iconTheme: IconThemeData(color: Colors.white),
         ),
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: ChangeNotifierProvider(
-        create: (context) => HomeProvider(Hive.box<TodoModel>(dbName), context),
+        create: (context) => HomeProvider(Database.box, context),
         builder: (context, child) => const HomeScreen(),
       ),
     );

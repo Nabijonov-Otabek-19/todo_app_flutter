@@ -4,7 +4,7 @@ import 'package:hive/hive.dart';
 import '../../../data/model/todo_model.dart';
 
 class HomeProvider extends ChangeNotifier {
-  final Box<TodoModel> _box;
+  final Box _box;
   final BuildContext context;
 
   HomeProvider(this._box, this.context);
@@ -19,22 +19,41 @@ class HomeProvider extends ChangeNotifier {
     return item;
   }
 
+  Future<int> totalCompletedTasks(List<int> keys, Box<TodoModel> items) async {
+    int total = 0;
+
+    for (var key in keys) {
+      final TodoModel data = items.get(key) ??
+          TodoModel(
+            title: "",
+            description: "",
+            category: "",
+            date: "",
+            time: "",
+            isDone: false,
+          );
+
+      if (data.isDone) total++;
+    }
+    return total;
+  }
+
   Future<void> updateItem(int itemKey, TodoModel item) async {
     await _box.put(itemKey, item);
     notifyListeners();
   }
 
-  Future<void> deleteItem(int itemKey, BuildContext context) async {
+  Future<void> deleteItem(int itemKey, bool mounted) async {
     await _box.delete(itemKey);
     notifyListeners();
 
     // Display a snackbar
-    //if (!mounted) return;
-    showSnackBar();
+    if (!mounted) return;
+    showSnackBar(mounted);
   }
 
-  void showSnackBar(){
-    //if(!mounted) return;
+  void showSnackBar(bool mounted) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('An item has been deleted')));
   }
@@ -43,7 +62,6 @@ class HomeProvider extends ChangeNotifier {
     // itemKey == null -> create new item
     // itemKey != null -> update an existing item
 
-    // TextFields' controllers
     final TextEditingController nameController = TextEditingController();
     final TextEditingController quantityController = TextEditingController();
 
@@ -86,8 +104,13 @@ class HomeProvider extends ChangeNotifier {
                           nameController.text.isNotEmpty &&
                           quantityController.text.isNotEmpty) {
                         createItem(TodoModel(
-                            title: nameController.text.trim(),
-                            description: quantityController.text.trim()));
+                          title: nameController.text.trim(),
+                          description: quantityController.text.trim(),
+                          category: "",
+                          date: "",
+                          time: "",
+                          isDone: false,
+                        ));
                       }
 
                       // update an existing item
@@ -97,8 +120,13 @@ class HomeProvider extends ChangeNotifier {
                         updateItem(
                             itemKey,
                             TodoModel(
-                                title: nameController.text.trim(),
-                                description: quantityController.text.trim()));
+                              title: nameController.text.trim(),
+                              description: quantityController.text.trim(),
+                              category: "",
+                              date: "",
+                              time: "",
+                              isDone: false,
+                            ));
                       }
 
                       // Clear the text fields
