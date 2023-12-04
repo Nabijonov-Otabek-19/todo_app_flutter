@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:provider/provider.dart';
-import 'package:todo_app/data/db/box.dart';
 import 'package:todo_app/data/model/todo_model.dart';
+import 'package:todo_app/presentation/screen/splash/splash_screen.dart';
 import 'package:todo_app/utils/constants.dart';
 
-import 'presentation/screen/home/home_provider.dart';
-import 'presentation/screen/home/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,10 +32,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: ChangeNotifierProvider(
-        create: (context) => HomeProvider(Database.box, context),
-        builder: (context, child) => const HomeScreen(),
-      ),
+      home: const SplashScreen(),
     );
   }
 }

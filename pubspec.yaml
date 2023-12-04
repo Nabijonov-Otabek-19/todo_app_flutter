@@ -18,6 +18,8 @@ dependencies:
   hive_flutter:
   provider:
   path_provider:
+  intl: ^0.18.1
+  fluttertoast: ^8.2.2
 
 
 dev_dependencies:

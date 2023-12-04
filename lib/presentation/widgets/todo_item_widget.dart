@@ -6,6 +6,7 @@ class TodoItemWidget extends StatelessWidget {
   final int itemKey;
   final Function() onEditClick;
   final Function() onDeleteClick;
+  final Function() onChangeClick;
 
   const TodoItemWidget({
     super.key,
@@ -13,6 +14,7 @@ class TodoItemWidget extends StatelessWidget {
     required this.itemKey,
     required this.onEditClick,
     required this.onDeleteClick,
+    required this.onChangeClick,
   });
 
   @override
@@ -26,8 +28,19 @@ class TodoItemWidget extends StatelessWidget {
       margin: const EdgeInsets.all(10),
       elevation: 2,
       child: ListTile(
-        title: Text(todoModel.title),
-        subtitle: Text(todoModel.description),
+        title: Text(
+          todoModel.title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(todoModel.time),
+        leading: Checkbox(
+          value: todoModel.isDone,
+          onChanged: (bool? value) {
+            onChangeClick();
+          },
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
