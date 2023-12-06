@@ -55,9 +55,20 @@ class _AddScreenState extends State<AddScreen> {
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Title
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    "Title",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 TextField(
                   controller: titleController,
                   keyboardType: TextInputType.text,
@@ -71,7 +82,19 @@ class _AddScreenState extends State<AddScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
                 // Description
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    "Description",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 TextField(
                   controller: descriptionController,
                   keyboardType: TextInputType.text,
@@ -86,7 +109,19 @@ class _AddScreenState extends State<AddScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+
                 // Category
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text(
+                    "Category",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
                 TextField(
                   controller: categoryController,
                   keyboardType: TextInputType.text,
@@ -101,51 +136,96 @@ class _AddScreenState extends State<AddScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Date picker
-                TextField(
-                  canRequestFocus: false,
-                  enableInteractiveSelection: false,
-                  decoration: InputDecoration(
-                    labelText: context.watch<AddProvider>().date,
-                    fillColor: Colors.white,
-                    filled: true,
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.calendar_month),
-                      onPressed: () async {
-                        context.read<AddProvider>().selectDate(context);
-                      },
+                // Date and Time picker
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Date picker
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              "Date",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          TextField(
+                            canRequestFocus: false,
+                            enableInteractiveSelection: false,
+                            decoration: InputDecoration(
+                              labelText: context.watch<AddProvider>().date,
+                              fillColor: Colors.white,
+                              filled: true,
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.calendar_month),
+                                onPressed: () async {
+                                  context
+                                      .read<AddProvider>()
+                                      .selectDate(context);
+                                },
+                              ),
+                              suffixIconColor: Colors.blueAccent,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    suffixIconColor: Colors.blueAccent,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
+                    const SizedBox(width: 8),
 
-                const SizedBox(height: 16),
-                // Time picker
-                TextField(
-                  canRequestFocus: false,
-                  enableInteractiveSelection: false,
-                  decoration: InputDecoration(
-                    labelText: context.watch<AddProvider>().time,
-                    fillColor: Colors.white,
-                    filled: true,
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.watch_later_outlined),
-                      onPressed: () async {
-                        context.read<AddProvider>().selectTime(context);
-                      },
+                    // Time picker
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              "Time",
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          TextField(
+                            canRequestFocus: false,
+                            enableInteractiveSelection: false,
+                            decoration: InputDecoration(
+                              labelText: context.watch<AddProvider>().time,
+                              fillColor: Colors.white,
+                              filled: true,
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.watch_later_outlined),
+                                onPressed: () async {
+                                  context
+                                      .read<AddProvider>()
+                                      .selectTime(context);
+                                },
+                              ),
+                              suffixIconColor: Colors.blueAccent,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    suffixIconColor: Colors.blueAccent,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
+                  ],
                 ),
-
                 const SizedBox(height: 24),
-                // create button
+
+                // Create button
                 FilledButton(
                   onPressed: () async {
                     final title = titleController.text.toString().trim();
@@ -159,7 +239,8 @@ class _AddScreenState extends State<AddScreen> {
                         title.isNotEmpty &&
                         description.isNotEmpty &&
                         categ.isNotEmpty &&
-                        date.isNotEmpty && time.isNotEmpty) {
+                        date.isNotEmpty &&
+                        time.isNotEmpty) {
                       final newItem = TodoModel(
                         title: title,
                         description: description,
@@ -175,7 +256,8 @@ class _AddScreenState extends State<AddScreen> {
                         title.isNotEmpty &&
                         description.isNotEmpty &&
                         categ.isNotEmpty &&
-                        date.isNotEmpty && time.isNotEmpty) {
+                        date.isNotEmpty &&
+                        time.isNotEmpty) {
                       final newItem = TodoModel(
                         title: title,
                         description: description,
@@ -196,7 +278,7 @@ class _AddScreenState extends State<AddScreen> {
                   },
                   style: ButtonStyle(
                     minimumSize: const MaterialStatePropertyAll(
-                      Size(double.infinity, 48),
+                      Size(double.infinity, 54),
                     ),
                     shape: MaterialStatePropertyAll(
                       RoundedRectangleBorder(
