@@ -30,7 +30,11 @@ class TodoItemWidget extends StatelessWidget {
       child: ListTile(
         title: Text(
           todoModel.title,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            decoration: todoModel.isDone ? TextDecoration.lineThrough : null,
+          ),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
