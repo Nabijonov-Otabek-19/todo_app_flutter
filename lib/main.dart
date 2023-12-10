@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_app/data/model/todo_model.dart';
 import 'package:todo_app/presentation/screen/splash/splash_screen.dart';
 import 'package:todo_app/utils/constants.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   await Hive.initFlutter();
   Hive.registerAdapter(TodoModelAdapter());
