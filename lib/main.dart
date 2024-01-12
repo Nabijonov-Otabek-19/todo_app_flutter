@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -13,6 +14,36 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(TodoModelAdapter());
   await Hive.openBox<TodoModel>(dbName);
+
+  // When some error occurs,
+  // screen will show custom error widget, not red screen
+  ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text("Error"),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.error_outline_rounded,
+                color: Colors.red,
+                size: 100,
+              ),
+              Text(
+                kReleaseMode
+                    ? "Oops... something went wrong"
+                    : errorDetails.exception.toString(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  };
 
   runApp(const MyApp());
 }
