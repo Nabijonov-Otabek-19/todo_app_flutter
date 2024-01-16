@@ -20,6 +20,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController scrollController = ScrollController();
 
+  ChangeNotifier notifier = ChangeNotifier();
+  ValueNotifier<int> notifier2 = ValueNotifier(0);
+
   @override
   void dispose() {
     scrollController.dispose();
@@ -132,56 +135,57 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        itemCount: doneItems.length,
-                        itemBuilder: (context, index) {
-                          final int key = doneItems[index];
-                          final TodoModel todoModel = items.get(key) ??
-                              TodoModel(
-                                title: "",
-                                description: "",
-                                category: "",
-                                date: "",
-                                time: "",
-                                isDone: false,
-                              );
-                          return TodoItemWidget(
-                            todoModel: todoModel,
-                            itemKey: key,
-                            onEditClick: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ChangeNotifierProvider(
-                                    create: (context) =>
-                                        AddProvider(Database.box),
-                                    builder: (context, child) => AddScreen(
-                                      itemKey: key,
-                                    ),
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      itemCount: doneItems.length,
+                      itemBuilder: (context, index) {
+                        final int key = doneItems[index];
+                        final TodoModel todoModel = items.get(key) ??
+                            TodoModel(
+                              title: "",
+                              description: "",
+                              category: "",
+                              date: "",
+                              time: "",
+                              isDone: false,
+                            );
+                        return TodoItemWidget(
+                          todoModel: todoModel,
+                          itemKey: key,
+                          onEditClick: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChangeNotifierProvider(
+                                  create: (context) =>
+                                      AddProvider(Database.box),
+                                  builder: (context, child) => AddScreen(
+                                    itemKey: key,
                                   ),
                                 ),
-                              );
-                            },
-                            onDeleteClick: () {
-                              context
-                                  .read<HomeProvider>()
-                                  .deleteItem(key, mounted);
-                            },
-                            onChangeClick: () {
-                              context.read<HomeProvider>().updateItem(
-                                  key,
-                                  TodoModel(
-                                    title: todoModel.title,
-                                    description: todoModel.description,
-                                    category: todoModel.category,
-                                    date: todoModel.date,
-                                    time: todoModel.time,
-                                    isDone: false,
-                                  ));
-                            },
-                          );
-                        }),
+                              ),
+                            );
+                          },
+                          onDeleteClick: () {
+                            context
+                                .read<HomeProvider>()
+                                .deleteItem(key, mounted);
+                          },
+                          onChangeClick: () {
+                            context.read<HomeProvider>().updateItem(
+                                key,
+                                TodoModel(
+                                  title: todoModel.title,
+                                  description: todoModel.description,
+                                  category: todoModel.category,
+                                  date: todoModel.date,
+                                  time: todoModel.time,
+                                  isDone: false,
+                                ));
+                          },
+                        );
+                      },
+                    ),
                   ],
                 ),
               );
