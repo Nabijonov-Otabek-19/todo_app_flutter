@@ -6,7 +6,7 @@ import 'package:todo_app/data/model/todo_model.dart';
 import 'package:todo_app/presentation/screen/splash/splash_screen.dart';
 import 'package:todo_app/utils/constants.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
