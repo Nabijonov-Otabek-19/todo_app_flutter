@@ -54,8 +54,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'Todo List',
+      debugShowCheckedModeBanner: false,
+      builder: (context, child) => _unFocusWrapper(child),
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
           color: Colors.blue,
@@ -66,6 +67,14 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
       home: const SplashScreen(),
+    );
+  }
+
+  Widget _unFocusWrapper(Widget? child) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: child,
     );
   }
 }
