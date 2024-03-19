@@ -20,9 +20,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ScrollController scrollController = ScrollController();
 
-  ChangeNotifier notifier = ChangeNotifier();
-  ValueNotifier<int> notifier2 = ValueNotifier(0);
-
   @override
   void dispose() {
     scrollController.dispose();
