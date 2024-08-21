@@ -1,52 +1,83 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
-  static final NotificationService _notificationService =
-      NotificationService._internal();
+  static final flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
 
-  factory NotificationService() {
-    return _notificationService;
+  static Future<void> onDidReceiveNotification(
+      NotificationResponse notificationResponse) async {
+    print("Notification receive");
   }
 
-  NotificationService._internal();
+  static Future<void> init() async {
+    const androidInitializationSettings =
+        AndroidInitializationSettings("@mipmap/ic_launcher");
+    const iOSInitializationSettings = DarwinInitializationSettings();
 
-  showNotification() async {
-    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    /*const IOSInitializationSettings initializationSettingsIOS =
-        IOSInitializationSettings(
-      requestSoundPermission: false,
-      requestBadgePermission: false,
-      requestAlertPermission: false,
-    );*/
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(
-      android: initializationSettingsAndroid,
-      //iOS: initializationSettingsIOS,
+    const initializationSettings = InitializationSettings(
+      android: androidInitializationSettings,
+      iOS: iOSInitializationSettings,
     );
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await flutterLocalNotificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: onDidReceiveNotification,
+      onDidReceiveBackgroundNotificationResponse: onDidReceiveNotification,
+    );
 
-    AndroidNotificationChannel channel = const AndroidNotificationChannel(
-      'high channel',
-      'Very important notification!!',
-      description: 'the first notification',
-      importance: Importance.max,
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()
+        ?.requestNotificationsPermission();
+  }
+
+  static Future<void> showInstantNotification(String title, String body) async {
+    const platformChannelSpecifics = NotificationDetails(
+      android: AndroidNotificationDetails(
+        'instant_notification_channel_id',
+        'Instant Notifications',
+        channelDescription: "This is for todo notifications",
+        importance: Importance.max,
+        priority: Priority.high,
+      ),
+      iOS: DarwinNotificationDetails(),
     );
 
     await flutterLocalNotificationsPlugin.show(
-      1,
-      'my first notification',
-      'a very long message for the user of app',
-      NotificationDetails(
-        android: AndroidNotificationDetails(channel.id, channel.name,
-            channelDescription: channel.description),
-      ),
+      0,
+      title,
+      body,
+      platformChannelSpecifics,
+      payload: 'instant_notification',
     );
+  }
+
+  static Future<void> scheduleNotification(
+      int id, String title, String body, DateTime scheduledTime) async {
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tz.TZDateTime.from(scheduledTime, tz.local),
+      const NotificationDetails(
+        iOS: DarwinNotificationDetails(),
+        android: AndroidNotificationDetails(
+          'reminder_channel',
+          'Reminder Channel',
+          importance: Importance.high,
+          priority: Priority.high,
+        ),
+      ),
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.dateAndTime,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+  }
+
+  // close a specific channel notification
+  static Future cancel(int id) async {
+    await flutterLocalNotificationsPlugin.cancel(id);
   }
 }

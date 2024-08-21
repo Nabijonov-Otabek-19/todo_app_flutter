@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_app/data/model/todo_model.dart';
+import 'package:todo_app/notification/notification_service.dart';
 import 'package:todo_app/presentation/screen/add/add_provider.dart';
 import 'package:todo_app/utils/output_utils.dart';
 
@@ -27,8 +29,14 @@ class _AddScreenState extends State<AddScreen> {
       descriptionController.text = existingItem.description;
       categoryController.text = existingItem.category;
 
-      context.read<AddProvider>().setDate(existingItem.date);
-      context.read<AddProvider>().setTime(existingItem.time);
+      List<String> time = existingItem.time.split(':');
+      final hour = int.parse(time[0]);
+      final minute = int.parse(time[1]);
+
+      context.read<AddProvider>().setDate(DateTime.parse(existingItem.date));
+      context
+          .read<AddProvider>()
+          .setTime(TimeOfDay(hour: hour, minute: minute));
     }
     super.initState();
   }
@@ -43,13 +51,18 @@ class _AddScreenState extends State<AddScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final read = context.read<AddProvider>();
+    final watch = context.watch<AddProvider>();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.itemKey == null ? 'Add Task' : 'Edit Task'),
+        title: Text(
+          widget.itemKey == null ? 'Add Task' : 'Edit Task',
+        ),
       ),
       body: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.sizeOf(context).width,
+        height: MediaQuery.sizeOf(context).height,
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Padding(
@@ -159,15 +172,13 @@ class _AddScreenState extends State<AddScreen> {
                             canRequestFocus: false,
                             enableInteractiveSelection: false,
                             decoration: InputDecoration(
-                              labelText: context.watch<AddProvider>().date,
+                              labelText: convertDate(watch.dateTime),
                               fillColor: Colors.white,
                               filled: true,
                               suffixIcon: IconButton(
                                 icon: const Icon(Icons.calendar_month),
                                 onPressed: () async {
-                                  context
-                                      .read<AddProvider>()
-                                      .selectDate(context);
+                                  read.selectDate(context);
                                 },
                               ),
                               suffixIconColor: Colors.blueAccent,
@@ -201,15 +212,14 @@ class _AddScreenState extends State<AddScreen> {
                             canRequestFocus: false,
                             enableInteractiveSelection: false,
                             decoration: InputDecoration(
-                              labelText: context.watch<AddProvider>().time,
+                              labelText:
+                                  "${watch.timeOfDay.hour}:${watch.timeOfDay.minute}",
                               fillColor: Colors.white,
                               filled: true,
                               suffixIcon: IconButton(
                                 icon: const Icon(Icons.watch_later_outlined),
                                 onPressed: () async {
-                                  context
-                                      .read<AddProvider>()
-                                      .selectTime(context);
+                                  read.selectTime(context);
                                 },
                               ),
                               suffixIconColor: Colors.blueAccent,
@@ -232,62 +242,72 @@ class _AddScreenState extends State<AddScreen> {
                     final description =
                         descriptionController.text.toString().trim();
                     final categ = categoryController.text.toString().trim();
-                    final date = context.read<AddProvider>().getDate();
-                    final time = context.read<AddProvider>().getTime();
+                    final date = read.getDate();
+                    final time = read.getTime();
 
                     if (widget.itemKey == null &&
                         title.isNotEmpty &&
                         description.isNotEmpty &&
-                        categ.isNotEmpty &&
-                        date.isNotEmpty &&
-                        time.isNotEmpty) {
+                        categ.isNotEmpty) {
                       final newItem = TodoModel(
                         title: title,
                         description: description,
                         category: categ,
-                        date: date,
-                        time: time,
+                        date: date.toIso8601String(),
+                        time: "${time.hour}:${time.minute}",
                         isDone: false,
                       );
-                      context.read<AddProvider>().createItem(newItem);
+                      read.createItem(newItem);
+                      await NotificationService.scheduleNotification(
+                        1,
+                        title,
+                        description,
+                        read.combineDateTimeAndTimeOfDay(),
+                      );
 
-                      Navigator.of(context).pop();
+                      //NotificationService.showInstantNotification(title, description);
+
+                      if (context.mounted) Navigator.pop(context);
                     } else if (widget.itemKey != null &&
                         title.isNotEmpty &&
                         description.isNotEmpty &&
-                        categ.isNotEmpty &&
-                        date.isNotEmpty &&
-                        time.isNotEmpty) {
+                        categ.isNotEmpty) {
                       final newItem = TodoModel(
                         title: title,
                         description: description,
                         category: categ,
-                        date: date,
-                        time: time,
+                        date: date.toIso8601String(),
+                        time: "${time.hour}:${time.minute}",
                         isDone: false,
                       );
 
-                      context
-                          .read<AddProvider>()
-                          .updateItem(widget.itemKey!, newItem);
+                      read.updateItem(widget.itemKey!, newItem);
 
-                      Navigator.of(context).pop();
+                      await NotificationService.scheduleNotification(
+                        1,
+                        title,
+                        description,
+                        read.combineDateTimeAndTimeOfDay(),
+                      );
+
+                      if (context.mounted) Navigator.pop(context);
                     } else {
                       toast("Fill the blank");
                     }
                   },
                   style: ButtonStyle(
-                    minimumSize: const MaterialStatePropertyAll(
+                    minimumSize: const WidgetStatePropertyAll(
                       Size(double.infinity, 54),
                     ),
-                    shape: MaterialStatePropertyAll(
+                    shape: WidgetStatePropertyAll(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
                   child: Text(
-                      widget.itemKey == null ? 'Create task' : 'Update task'),
+                    widget.itemKey == null ? 'Create task' : 'Update task',
+                  ),
                 ),
               ],
             ),
@@ -295,5 +315,11 @@ class _AddScreenState extends State<AddScreen> {
         ),
       ),
     );
+  }
+
+  String convertDate(DateTime date) {
+    // Format the DateTime to "dd.mm.yyyy" format
+    String formattedDate = DateFormat('dd.MM.yyyy').format(date);
+    return formattedDate;
   }
 }

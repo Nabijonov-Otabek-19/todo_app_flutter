@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
 
 import '../../../data/model/todo_model.dart';
 
@@ -9,8 +8,8 @@ class AddProvider extends ChangeNotifier {
 
   AddProvider(this._box);
 
-  String date = "dd.mm.yyyy";
-  String time = "hh:mm";
+  DateTime dateTime = DateTime.now();
+  TimeOfDay timeOfDay = TimeOfDay.now();
 
   Future<void> createItem(TodoModel newItem) async {
     await _box.add(newItem);
@@ -27,19 +26,19 @@ class AddProvider extends ChangeNotifier {
     return item;
   }
 
-  String getDate() => date;
+  DateTime getDate() => dateTime;
 
-  void setDate(String d) async {
-    date = d;
+  void setDate(DateTime d) async {
+    dateTime = d;
   }
 
-  String getTime() => time;
+  TimeOfDay getTime() => timeOfDay;
 
-  void setTime(String t) async {
-    time = t;
+  void setTime(TimeOfDay t) async {
+    timeOfDay = t;
   }
 
-  selectTime(BuildContext context) async {
+  void selectTime(BuildContext context) async {
     TimeOfDay selectedTime = TimeOfDay.now();
     final TimeOfDay? picked = await showTimePicker(
       context: context,
@@ -47,12 +46,22 @@ class AddProvider extends ChangeNotifier {
     );
 
     if (picked != null) {
-      time = "${picked.hour}:${picked.minute}";
+      timeOfDay = picked;
       notifyListeners();
     }
   }
 
-  selectDate(BuildContext context) async {
+  DateTime combineDateTimeAndTimeOfDay() {
+    return DateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+      timeOfDay.hour,
+      timeOfDay.minute,
+    );
+  }
+
+  void selectDate(BuildContext context) async {
     DateTime selectedDate = DateTime.now();
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -62,9 +71,7 @@ class AddProvider extends ChangeNotifier {
     );
 
     if (picked != null) {
-      // Format the DateTime to "dd.mm.yyyy" format
-      String formattedDate = DateFormat('dd.MM.yyyy').format(picked);
-      date = formattedDate;
+      dateTime = picked;
       notifyListeners();
     }
   }

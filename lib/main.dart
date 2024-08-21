@@ -3,13 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todo_app/data/model/todo_model.dart';
+import 'package:todo_app/notification/notification_service.dart';
 import 'package:todo_app/presentation/screen/splash/splash_screen.dart';
 import 'package:todo_app/utils/constants.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  await NotificationService.init();
+  tz.initializeTimeZones();
 
   await Hive.initFlutter();
   Hive.registerAdapter(TodoModelAdapter());
@@ -49,7 +54,7 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -29,10 +29,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Todo List')),
+      appBar: AppBar(
+        title: const Text('Todo List'),
+      ),
       body: SizedBox(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.sizeOf(context).width,
+        height: MediaQuery.sizeOf(context).height,
         child: ValueListenableBuilder(
           valueListenable: Database.box.listenable(),
           builder: (context, items, child) {
@@ -63,72 +65,82 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Upcoming task
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 10),
+                        vertical: 10,
+                        horizontal: 10,
+                      ),
                       child: Text(
                         "Upcoming : ${unDoneItems.length}",
                         style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     ListView.builder(
-                        shrinkWrap: true,
-                        scrollDirection: Axis.vertical,
-                        itemCount: unDoneItems.length,
-                        itemBuilder: (context, index) {
-                          final int key = unDoneItems[index];
-                          final TodoModel todoModel = items.get(key) ??
-                              TodoModel(
-                                title: "",
-                                description: "",
-                                category: "",
-                                date: "",
-                                time: "",
-                                isDone: false,
-                              );
-                          return TodoItemWidget(
-                            todoModel: todoModel,
-                            itemKey: key,
-                            onEditClick: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => ChangeNotifierProvider(
-                                    create: (context) =>
-                                        AddProvider(Database.box),
-                                    builder: (context, child) => AddScreen(
-                                      itemKey: key,
-                                    ),
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      itemCount: unDoneItems.length,
+                      itemBuilder: (context, index) {
+                        final int key = unDoneItems[index];
+                        final TodoModel todoModel = items.get(key) ??
+                            TodoModel(
+                              title: "",
+                              description: "",
+                              category: "",
+                              date: "",
+                              time: "",
+                              isDone: false,
+                            );
+
+                        return TodoItemWidget(
+                          todoModel: todoModel,
+                          itemKey: key,
+                          onEditClick: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChangeNotifierProvider(
+                                  create: (context) =>
+                                      AddProvider(Database.box),
+                                  builder: (context, child) => AddScreen(
+                                    itemKey: key,
                                   ),
                                 ),
-                              );
-                            },
-                            onDeleteClick: () {
-                              context
-                                  .read<HomeProvider>()
-                                  .deleteItem(key, mounted);
-                            },
-                            onChangeClick: () {
-                              context.read<HomeProvider>().updateItem(
-                                  key,
-                                  TodoModel(
-                                    title: todoModel.title,
-                                    description: todoModel.description,
-                                    category: todoModel.category,
-                                    date: todoModel.date,
-                                    time: todoModel.time,
-                                    isDone: true,
-                                  ));
-                            },
-                          );
-                        }),
+                              ),
+                            );
+                          },
+                          onDeleteClick: () {
+                            context
+                                .read<HomeProvider>()
+                                .deleteItem(key, mounted);
+                          },
+                          onChangeClick: () {
+                            context.read<HomeProvider>().updateItem(
+                                key,
+                                TodoModel(
+                                  title: todoModel.title,
+                                  description: todoModel.description,
+                                  category: todoModel.category,
+                                  date: todoModel.date,
+                                  time: todoModel.time,
+                                  isDone: true,
+                                ));
+                          },
+                        );
+                      },
+                    ),
                     // Completed task
                     Padding(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 10),
+                        vertical: 10,
+                        horizontal: 10,
+                      ),
                       child: Text(
                         "Completed : ${doneItems.length}",
                         style: const TextStyle(
-                            fontSize: 22, fontWeight: FontWeight.bold),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     ListView.builder(
@@ -146,6 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               time: "",
                               isDone: false,
                             );
+
                         return TodoItemWidget(
                           todoModel: todoModel,
                           itemKey: key,
